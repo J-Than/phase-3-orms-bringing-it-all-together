@@ -3,11 +3,11 @@ class Dog
   attr_accessor :id
 
   def initialize(dog)
+    @id = nil
     dog.each do |key, value|
       self.class.attr_accessor(key)
       self.send("#{key}=", value)
     end
-    @id = nil
   end
 
   def self.create_table
@@ -47,5 +47,25 @@ class Dog
     new_dog = Dog.new(dog)
     new_dog.save
   end
+
+  def self.new_from_db(row)
+    self.new(id: row[0], name: row[1], breed: row[2])
+  end
+
+  def self.all
+    DB[:conn].execute("SELECT * FROM dogs").map do |row|
+      self.new_from_db(row)
+    end
+  end
+
+  # def self.new_from_db(row)
+  #   sql = <<-SQL
+  #     SELECT * FROM dogs
+  #     WHERE row = ?
+  #     LIMIT 1
+  #   SQL
+
+  #   DB[:conn].execute(sql, name)
+  # end
 
 end
